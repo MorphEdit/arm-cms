@@ -415,17 +415,17 @@ class NewsManager {
      * @param {number} wait - เวลาหน่วง (milliseconds)
      * @return {Function} - debounced function
      */
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
+    // debounce(func, wait) {
+    //     let timeout;
+    //     return function executedFunction(...args) {
+    //         const later = () => {
+    //             clearTimeout(timeout);
+    //             func(...args);
+    //         };
+    //         clearTimeout(timeout);
+    //         timeout = setTimeout(later, wait);
+    //     };
+    // }
 
     /**
      * Refresh news data

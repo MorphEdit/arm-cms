@@ -44,9 +44,6 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    <!-- Meta tags for SEO -->
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="author" content="ARM CMS">
 </head>
 
 <body>
@@ -113,13 +110,13 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <a href="pages/add_news.php" class="btn btn-success" title="เพิ่มข่าวใหม่">
-                    + เพิ่มข่าวใหม่
+                    <i class="bi bi-plus-lg"></i> เพิ่มข่าวใหม่
                 </a>
                 <!-- <button type="button" class="btn" onclick="newsManager.refresh()" title="รีเฟรชข้อมูล">
-                    🔄 รีเฟรช
+                    <i class="bi bi-arrow-clockwise"></i> รีเฟรช
                 </button>
                 <button type="button" class="btn" onclick="newsManager.clearFilters()" title="ล้างตัวกรอง">
-                    ❌ ล้างตัวกรอง
+                    <i class="bi bi-x-lg"></i> ล้างตัวกรอง
                 </button> -->
             </div>
         </div>
@@ -166,38 +163,6 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
 
     <!-- Additional JavaScript for page-specific functionality -->
     <script>
-        // Page-specific JavaScript (jQuery Version)
-        /**
-         * Show tooltip (jQuery Version)
-         * การทำงาน:
-         * - สร้าง tooltip element ใหม่
-         * - ดึงข้อความจาก title attribute
-         * - คำนวณตำแหน่งและแสดง tooltip
-         * @param {Event} e - mouse enter event
-         */
-        function showTooltip(e) {
-            const $tooltip = $('<div class="tooltip"></div>')
-                .text($(e.target).attr('title'))
-                .appendTo('body');
-
-            // Position tooltip
-            const rect = e.target.getBoundingClientRect();
-            $tooltip.css({
-                left: rect.left + 'px',
-                top: (rect.top - 30) + 'px'
-            });
-        }
-
-        /**
-         * Hide tooltip (jQuery Version)
-         * การทำงาน:
-         * - ค้นหาและลบ tooltip element
-         * - เรียกใช้เมื่อ mouse leave จาก element
-         */
-        function hideTooltip() {
-            $('.tooltip').remove();
-        }
-
         /**
          * Update page statistics
          * การทำงาน:
@@ -233,23 +198,6 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
         function hideLoadingOverlay() {
             $('#loadingOverlay').hide();
         }
-
-        /**
-         * Handle online/offline status (jQuery Version)
-         * การทำงาน:
-         * - ตรวจจับสถานะการเชื่อมต่ออินเทอร์เน็ต
-         * - เมื่อกลับมา online จะรีเฟรชข้อมูล
-         * - เมื่อ offline จะแจ้งเตือนผู้ใช้
-         */
-        $(window).on('online', function () {
-            console.log('Connection restored');
-            newsManager.refresh();
-        });
-
-        $(window).on('offline', function () {
-            console.log('Connection lost');
-            newsManager.showAlert('การเชื่อมต่ออินเทอร์เน็ตขาดหาย', 'warning');
-        });
     </script>
 
     <!-- Page-specific CSS -->
@@ -309,17 +257,6 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
             100% {
                 transform: rotate(360deg);
             }
-        }
-
-        .tooltip {
-            position: absolute;
-            background: #333;
-            color: white;
-            padding: 5px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 1000;
-            pointer-events: none;
         }
 
         /* Responsive adjustments */
