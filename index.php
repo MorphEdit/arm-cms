@@ -14,6 +14,7 @@ require_once 'config/auth.php';
 
 // Require login to access this page
 requireLogin();
+// requireAdmin();
 
 // Get current user for display
 $currentUser = getCurrentUser();

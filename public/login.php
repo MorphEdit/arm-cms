@@ -37,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result['success']) {
             $success = $result['message'];
+
+            // session_start();
+            // $_SESSION['IsLogin'] = true;
             
             // Redirect after successful login
             $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : '../index.php';
@@ -403,11 +406,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         
         <!-- Demo Credentials (remove in production) -->
-        <div class="demo-credentials">
+        <!-- <div class="demo-credentials">
             <strong>ข้อมูลทดสอบ:</strong><br>
             Username: <code>admin</code><br>
             Password: <code>password</code>
-        </div>
+        </div> -->
         
         <!-- Login Form -->
         <form method="POST" action="" id="loginForm">
