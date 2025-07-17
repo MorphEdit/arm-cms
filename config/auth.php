@@ -59,7 +59,7 @@ function requireLogin() {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
         
         // Redirect to login page
-        header('Location: public/login.php');
+        header('Location: ../public/401.php');
         exit();
     }
 }
@@ -72,18 +72,18 @@ function requireLogin() {
  * - ส่ง JSON response พร้อม HTTP 401 หากไม่ได้รับอนุญาต
  * - ใช้สำหรับไฟล์ในโฟลเดอร์ api/
  */
-function requireApiAuth() {
-    if (!isLoggedIn()) {
-        http_response_code(401);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'success' => false,
-            'message' => 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
-            'error_code' => 'UNAUTHORIZED'
-        ], JSON_UNESCAPED_UNICODE);
-        exit();
-    }
-}
+// function requireApiAuth() {
+//     if (!isLoggedIn()) {
+//         http_response_code(401);
+//         header('Content-Type: application/json; charset=utf-8');
+//         echo json_encode([
+//             'success' => false,
+//             'message' => 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
+//             'error_code' => 'UNAUTHORIZED'
+//         ], JSON_UNESCAPED_UNICODE);
+//         exit();
+//     }
+// }
 
 /**
  * Get current user data
@@ -95,27 +95,27 @@ function requireApiAuth() {
  * 
  * @return array|null
  */
-function getCurrentUser() {
-    if (!isLoggedIn()) {
-        return null;
-    }
+// function getCurrentUser() {
+//     if (!isLoggedIn()) {
+//         return null;
+//     }
     
-    try {
-        $db = getDatabase();
-        $stmt = $db->prepare("
-            SELECT id, username, full_name, email, role, status, last_login, created_at 
-            FROM users 
-            WHERE id = ? AND status = 'active' 
-            LIMIT 1
-        ");
-        $stmt->execute([$_SESSION['user_id']]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+//     try {
+//         $db = getDatabase();
+//         $stmt = $db->prepare("
+//             SELECT id, username, full_name, email, role, status, last_login, created_at 
+//             FROM users 
+//             WHERE id = ? AND status = 'active' 
+//             LIMIT 1
+//         ");
+//         $stmt->execute([$_SESSION['user_id']]);
+//         return $stmt->fetch(PDO::FETCH_ASSOC);
         
-    } catch (Exception $e) {
-        error_log('Get current user error: ' . $e->getMessage());
-        return null;
-    }
-}
+//     } catch (Exception $e) {
+//         error_log('Get current user error: ' . $e->getMessage());
+//         return null;
+//     }
+// }
 
 /**
  * Create remember me token
@@ -416,9 +416,9 @@ function logout() {
  * @param string $role
  * @return bool
  */
-function hasRole($role) {
-    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === $role;
-}
+// function hasRole($role) {
+//     return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === $role;
+// }
 
 /**
  * Check if user is admin
@@ -427,9 +427,14 @@ function hasRole($role) {
  * 
  * @return bool
  */
+// function isAdmin() {
+//     return hasRole('admin');
+// }
+
 function isAdmin() {
-    return hasRole('admin');
+    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }
+
 
 /**
  * Require admin role
@@ -442,8 +447,7 @@ function requireAdmin() {
     requireLogin();
     
     if (!isAdmin()) {
-        http_response_code(403);
-        die('Access Denied: Admin role required');
+        header('Location: public/403.php');
     }
 }
 
@@ -456,12 +460,12 @@ function requireAdmin() {
  * 
  * @return string
  */
-function generateCSRFToken() {
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
-}
+// function generateCSRFToken() {
+//     if (!isset($_SESSION['csrf_token'])) {
+//         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+//     }
+//     return $_SESSION['csrf_token'];
+// }
 
 /**
  * Verify CSRF token
@@ -473,9 +477,9 @@ function generateCSRFToken() {
  * @param string $token
  * @return bool
  */
-function verifyCSRFToken($token) {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
+// function verifyCSRFToken($token) {
+//     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+// }
 
 /**
  * Get user display name

@@ -23,10 +23,10 @@ ob_start();
 
 try {
     // Include authentication
-    require_once '../config/auth.php';
+    // require_once '../config/auth.php';
     
     // Require API authentication
-    requireApiAuth();
+    // requireApiAuth();
 
     // Include database connection
     require_once '../config/database.php';

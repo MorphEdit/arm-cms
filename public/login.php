@@ -6,16 +6,18 @@
  * หน้าเข้าสู่ระบบสำหรับผู้ดูแล
  */
 
+ session_start();
+
 // Include authentication system
 require_once '../config/auth.php';
 
 // Redirect if already logged in
-if (isLoggedIn()) {
-    $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : '../index.php';
-    unset($_SESSION['redirect_after_login']);
-    header('Location: ' . $redirectUrl);
-    exit();
-}
+// if (isLoggedIn()) {
+//     $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : '../index.php';
+//     unset($_SESSION['redirect_after_login']);
+//     header('Location: ' . $redirectUrl);
+//     exit();
+// }
 
 // Handle form submission
 $error = '';
@@ -38,11 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result['success']) {
             $success = $result['message'];
 
-            // session_start();
-            // $_SESSION['IsLogin'] = true;
+            $_SESSION['IsLogin'] = true;
             
             // Redirect after successful login
-            $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : '../index.php';
+            $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : 'index.php';
             unset($_SESSION['redirect_after_login']);
             
             // JavaScript redirect for better UX

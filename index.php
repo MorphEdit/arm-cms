@@ -13,11 +13,11 @@ session_start();
 require_once 'config/auth.php';
 
 // Require login to access this page
-requireLogin();
-// requireAdmin();
+// requireLogin();
+requireAdmin();
 
 // Get current user for display
-$currentUser = getCurrentUser();
+// $currentUser = getCurrentUser();
 
 // Include database connection
 require_once 'config/database.php';

@@ -7,6 +7,7 @@
  */
 
 // Get current page for navigation
+
 $currentPage = basename($_SERVER['PHP_SELF']);
 $pageTitle = isset($pageTitle) ? $pageTitle : 'ข่าวประชาสัมพันธ์';
 
@@ -185,6 +186,10 @@ if (!isset($ogImage) || empty($ogImage)) {
                 <div class="header-actions">
                     <a href="../index.php" class="admin-link" title="เข้าสู่ระบบจัดการ">
                         <i class="bi bi-gear"></i> จัดการ
+                    </a>
+
+                    <a href="logout.php" class="admin-link" title="ออกจากระบบ">
+                        <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
                     </a>
                 </div>
 

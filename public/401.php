@@ -3,15 +3,15 @@
 <div class="container">
     <div class="page-403">
         <div class="page-title-403">
-            403
+            401
         </div>
 
         <div class="page-subtitle-403">
-            Access Denied: Role required
+            Access Denied: Login required
         </div>
 
-        <button class="btn location" onclick="window.location.href='index.php';">
-            ไปยังหน้า Index
+        <button class="btn location" onclick="window.location.href='login.php';">
+            ไปยังหน้า Login
         </button>
     </div>
 </div>
