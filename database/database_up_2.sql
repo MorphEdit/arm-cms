@@ -1,0 +1,1 @@
+ALTER TABLE cms ADD COLUMN member_access ENUM('public', 'member') NOT NULL DEFAULT 'public' AFTER status;

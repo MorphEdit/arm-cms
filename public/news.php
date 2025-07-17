@@ -9,6 +9,10 @@
 // Start session
 session_start();
 
+if (empty($_SESSION["IsLogin"]) && $_SESSION["IsLogin"] == false){
+    header('Location: 401.php');
+}
+
 // Include database connection
 require_once '../config/database.php';
 

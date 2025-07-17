@@ -12,7 +12,7 @@ require_once '../config/auth.php';
 // Check if user is logged in
 if (!isLoggedIn()) {
     // Already logged out, redirect to login
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
 }
 
@@ -25,6 +25,6 @@ if (isset($_COOKIE['remember_token'])) {
 logout();
 
 // Redirect to login page with success message
-header('Location: login.php?logout=1');
+header('Location: index.php?logout=1');
 exit();
 ?>

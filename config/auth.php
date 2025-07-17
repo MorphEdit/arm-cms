@@ -59,7 +59,7 @@ function requireLogin() {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
         
         // Redirect to login page
-        header('Location: ../public/401.php');
+        header('Location: public/401.php');
         exit();
     }
 }
