@@ -67,6 +67,7 @@ try {
             category, 
             image, 
             status,
+            member_access,
             created_at, 
             updated_at
         FROM cms 

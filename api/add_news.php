@@ -42,6 +42,7 @@ try {
     $content = isset($_POST['content']) ? trim($_POST['content']) : '';
     $category = isset($_POST['category']) ? trim($_POST['category']) : '';
     $status = isset($_POST['status']) ? trim($_POST['status']) : '';
+    $member_access = isset($_POST['member_access']) ? trim($_POST['member_access']) : 'public';
 
     // Validate required fields
     // การทำงาน: ตรวจสอบข้อมูลที่จำเป็น
@@ -61,6 +62,10 @@ try {
         throw new Exception('สถานะไม่ถูกต้อง');
     }
 
+    if (!in_array($member_access, ['public', 'member'])) {
+        throw new Exception('การเข้าถึงไม่ถูกต้อง');
+    }
+
     // Start transaction
     // การทำงาน: เริ่ม transaction เพื่อให้การเพิ่มข้อมูลเป็น atomic operation
     $db->beginTransaction();
@@ -76,8 +81,8 @@ try {
         // Insert news into database
         // การทำงาน: บันทึกข้อมูลข่าวลงฐานข้อมูล
         $stmt = $db->prepare("
-            INSERT INTO cms (title, content, category, image, status, created_at, updated_at) 
-            VALUES (:title, :content, :category, :image, :status, NOW(), NOW())
+            INSERT INTO cms (title, content, category, image, status, member_access, created_at, updated_at) 
+            VALUES (:title, :content, :category, :image, :status, :member_access, NOW(), NOW())
         ");
 
         $result = $stmt->execute([
@@ -85,7 +90,8 @@ try {
             ':content' => $content,
             ':category' => $category,
             ':image' => $uploadedImage,
-            ':status' => $status
+            ':status' => $status,
+            ':member_access' => $member_access
         ]);
 
         if (!$result) {
@@ -121,6 +127,7 @@ try {
                 'category' => $newNewsData['category'],
                 'image' => $newNewsData['image'],
                 'status' => $newNewsData['status'],
+                'member_access' => $newNewsData['member_access'],
                 'created_at' => $newNewsData['created_at'],
                 'updated_at' => $newNewsData['updated_at']
             ]

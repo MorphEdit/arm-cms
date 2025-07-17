@@ -21,7 +21,7 @@ require_once '../config/database.php';
 
 // Get news ID from URL
 // การทำงาน: ดึง ID ของข่าวจาก URL parameter
-$newsId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$newsId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 // การทำงาน: ตรวจสอบ ID ว่าถูกต้องหรือไม่ หากไม่ถูกต้องให้กลับไปหน้าหลัก
 if ($newsId <= 0) {
@@ -41,7 +41,7 @@ try {
     $stmt = $db->prepare("SELECT * FROM cms WHERE id = :id LIMIT 1");
     $stmt->execute([':id' => $newsId]);
     $newsData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // การทำงาน: หากไม่พบข่าวให้กลับไปหน้าหลัก
     if (!$newsData) {
         header('Location: ../index.php');
@@ -56,15 +56,16 @@ try {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แก้ไขข่าว - ARM CMS</title>
     <link rel="stylesheet" href="../assets/css/main.css">
-    
+
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
+
     <style>
         .form-container {
             max-width: 800px;
@@ -75,18 +76,18 @@ try {
             border: 1px solid #dee2e6;
             padding: 30px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #495057;
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -97,12 +98,12 @@ try {
             font-size: 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
+
         .form-group textarea {
             resize: vertical;
             min-height: 120px;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -110,85 +111,85 @@ try {
             border-color: #007bff;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
         }
-        
+
         .form-actions {
             display: flex;
             gap: 10px;
             margin-top: 30px;
         }
-        
+
         .alert {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
             display: none;
         }
-        
+
         .alert-success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-        
+
         .alert-danger {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        
+
         .required {
             color: #dc3545;
         }
-        
+
         .current-image {
             margin-bottom: 15px;
         }
-        
+
         .current-image img {
             max-width: 200px;
             max-height: 200px;
             border: 1px solid #dee2e6;
             border-radius: 4px;
         }
-        
+
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-top: 10px;
         }
-        
+
         .checkbox-group input[type="checkbox"] {
             width: auto;
         }
-        
+
         .file-info {
             font-size: 12px;
             color: #6c757d;
             margin-top: 5px;
         }
-        
+
         .preview-container {
             margin-top: 10px;
         }
-        
+
         .preview-image {
             max-width: 200px;
             max-height: 200px;
             border: 1px solid #dee2e6;
             border-radius: 4px;
         }
-        
+
         .breadcrumb {
             margin-bottom: 20px;
             font-size: 14px;
         }
-        
+
         .breadcrumb a {
             color: rgb(224, 6, 42);
             text-decoration: none;
         }
-        
+
         .breadcrumb a:hover {
             text-decoration: underline;
         }
@@ -225,11 +226,17 @@ try {
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Loading Overlay -->
@@ -265,35 +272,32 @@ try {
             <form id="editNewsForm" enctype="multipart/form-data">
                 <!-- Hidden field สำหรับ news ID -->
                 <input type="hidden" id="newsId" value="<?php echo $newsId; ?>">
-                
+
                 <!-- Title -->
                 <div class="form-group">
                     <label for="title">หัวข้อข่าว <span class="required">*</span></label>
-                    <input type="text" 
-                           id="title" 
-                           name="title" 
-                           value="<?php echo htmlspecialchars($newsData['title']); ?>"
-                           placeholder="กรอกหัวข้อข่าว"
-                           maxlength="255"
-                           required>
+                    <input type="text" id="title" name="title"
+                        value="<?php echo htmlspecialchars($newsData['title']); ?>" placeholder="กรอกหัวข้อข่าว"
+                        maxlength="255" required>
                 </div>
 
                 <!-- Content -->
                 <div class="form-group">
                     <label for="content">เนื้อหาข่าว <span class="required">*</span></label>
-                    <textarea id="content" 
-                              name="content" 
-                              placeholder="กรอกเนื้อหาข่าว"
-                              required><?php echo htmlspecialchars($newsData['content']); ?></textarea>
+                    <textarea id="content" name="content" placeholder="กรอกเนื้อหาข่าว"
+                        required><?php echo htmlspecialchars($newsData['content']); ?></textarea>
                 </div>
 
                 <!-- Category -->
                 <div class="form-group">
                     <label for="category">หมวดหมู่ <span class="required">*</span></label>
                     <select id="category" name="category" required>
-                        <option value="ทั่วไป" <?php echo $newsData['category'] === 'ทั่วไป' ? 'selected' : ''; ?>>ทั่วไป</option>
-                        <option value="ประกาศ" <?php echo $newsData['category'] === 'ประกาศ' ? 'selected' : ''; ?>>ประกาศ</option>
-                        <option value="กิจกรรม" <?php echo $newsData['category'] === 'กิจกรรม' ? 'selected' : ''; ?>>กิจกรรม</option>
+                        <option value="ทั่วไป" <?php echo $newsData['category'] === 'ทั่วไป' ? 'selected' : ''; ?>>ทั่วไป
+                        </option>
+                        <option value="ประกาศ" <?php echo $newsData['category'] === 'ประกาศ' ? 'selected' : ''; ?>>ประกาศ
+                        </option>
+                        <option value="กิจกรรม" <?php echo $newsData['category'] === 'กิจกรรม' ? 'selected' : ''; ?>>
+                            กิจกรรม</option>
                     </select>
                 </div>
 
@@ -303,15 +307,16 @@ try {
                     <div id="currentImageContainer">
                         <?php if (!empty($newsData['image'])): ?>
                             <div class="current-image">
-                                <img src="../uploads/<?php echo htmlspecialchars($newsData['image']); ?>" 
-                                     alt="ภาพประกอบปัจจุบัน">
+                                <img src="../uploads/<?php echo htmlspecialchars($newsData['image']); ?>"
+                                    alt="ภาพประกอบปัจจุบัน">
                                 <div class="checkbox-group">
                                     <input type="checkbox" id="remove_image" name="remove_image" value="1">
                                     <label for="remove_image">ลบภาพนี้</label>
                                 </div>
                             </div>
                         <?php else: ?>
-                            <div style="padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; text-align: center; color: #6c757d;">
+                            <div
+                                style="padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; text-align: center; color: #6c757d;">
                                 ไม่มีภาพประกอบ
                             </div>
                         <?php endif; ?>
@@ -321,10 +326,7 @@ try {
                 <!-- New Image Upload -->
                 <div class="form-group">
                     <label for="image">อัปโหลดภาพใหม่</label>
-                    <input type="file" 
-                           id="image" 
-                           name="image" 
-                           accept="image/jpeg,image/jpg,image/png,image/webp">
+                    <input type="file" id="image" name="image" accept="image/jpeg,image/jpg,image/png,image/webp">
                     <div class="file-info">
                         รองรับไฟล์: JPG, JPEG, PNG, WebP | ขนาดไม่เกิน 2MB<br>
                         <small>หากเลือกไฟล์ใหม่ ภาพเก่าจะถูกแทนที่</small>
@@ -336,8 +338,21 @@ try {
                 <div class="form-group">
                     <label for="status">สถานะ <span class="required">*</span></label>
                     <select id="status" name="status" required>
-                        <option value="active" <?php echo $newsData['status'] === 'active' ? 'selected' : ''; ?>>เปิดใช้งาน</option>
-                        <option value="inactive" <?php echo $newsData['status'] === 'inactive' ? 'selected' : ''; ?>>ปิดใช้งาน</option>
+                        <option value="active" <?php echo $newsData['status'] === 'active' ? 'selected' : ''; ?>>
+                            เปิดใช้งาน</option>
+                        <option value="inactive" <?php echo $newsData['status'] === 'inactive' ? 'selected' : ''; ?>>
+                            ปิดใช้งาน</option>
+                    </select>
+                </div>
+
+                <!-- Member Access -->
+                <div class="form-group">
+                    <label for="member_access">การเข้าถึง <span class="required">*</span></label>
+                    <select id="member_access" name="member_access" required>
+                        <option value="public" <?php echo $newsData['member_access'] === 'public' ? 'selected' : ''; ?>>
+                            สาธารณะ</option>
+                        <option value="member" <?php echo $newsData['member_access'] === 'member' ? 'selected' : ''; ?>>
+                            สมาชิกเท่านั้น</option>
                     </select>
                 </div>
 
@@ -356,39 +371,39 @@ try {
          * jQuery Document Ready
          * การทำงาน: เริ่มต้นการทำงานเมื่อ DOM พร้อม
          */
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Hide alerts initially
             hideAlerts();
-            
+
             // Initialize textarea height
             const $textarea = $('#content');
             $textarea.css('height', 'auto');
             $textarea.css('height', $textarea[0].scrollHeight + 'px');
-            
+
             // Form submission handler
             $('#editNewsForm').on('submit', handleFormSubmit);
-            
+
             // Delete button handler
             $('#deleteBtn').on('click', confirmDelete);
-            
+
             // Image change handler
-            $('#image').on('change', function() {
+            $('#image').on('change', function () {
                 previewImage(this);
             });
-            
+
             // Auto-resize textarea
-            $('#content').on('input', function() {
+            $('#content').on('input', function () {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
-            
+
             // Character counter for title
-            $('#title').on('input', function() {
+            $('#title').on('input', function () {
                 updateCharacterCounter(this);
             });
-            
+
             // Handle remove image checkbox
-            $('#remove_image').on('change', function() {
+            $('#remove_image').on('change', function () {
                 if (this.checked && $('#image').val()) {
                     if (confirm('คุณได้เลือกทั้งลบภาพเก่าและอัปโหลดภาพใหม่\nภาพใหม่จะถูกใช้แทน')) {
                         this.checked = false;
@@ -407,16 +422,16 @@ try {
          */
         function handleFormSubmit(e) {
             e.preventDefault();
-            
+
             // Client-side validation
             const title = $('#title').val().trim();
             const content = $('#content').val().trim();
-            
+
             if (!title) {
                 showAlert('กรุณากรอกหัวข้อข่าว', 'error');
                 return;
             }
-            
+
             if (!content) {
                 showAlert('กรุณากรอกเนื้อหาข่าว', 'error');
                 return;
@@ -429,11 +444,11 @@ try {
                     return;
                 }
             }
-            
+
             // Show loading
             showLoading(true);
             hideAlerts();
-            
+
             // Create FormData object
             const formData = new FormData();
             formData.append('id', $('#newsId').val());
@@ -441,12 +456,13 @@ try {
             formData.append('content', content);
             formData.append('category', $('#category').val());
             formData.append('status', $('#status').val());
-            
+            formData.append('member_access', $('#member_access').val());
+
             // Add remove_image flag if checked
             if ($('#remove_image').is(':checked')) {
                 formData.append('remove_image', '1');
             }
-            
+
             // Add image file if selected
             if (imageFile) {
                 formData.append('image', imageFile);
@@ -460,31 +476,31 @@ try {
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showAlert('อัปเดตข่าวเรียบร้อยแล้ว', 'success');
-                        
+
                         // Update current image if changed
                         if (response.updated_data) {
                             updateCurrentImage(response.updated_data.image);
                         }
-                        
+
                         // Clear new image selection
                         $('#image').val('');
                         $('#imagePreview').empty();
-                        
+
                         // Uncheck remove image
                         $('#remove_image').prop('checked', false);
-                        
+
                     } else {
                         showAlert(response.message || 'เกิดข้อผิดพลาดในการอัปเดตข่าว', 'error');
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Update error:', error);
                     showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์', 'error');
                 },
-                complete: function() {
+                complete: function () {
                     showLoading(false);
                 }
             });
@@ -504,14 +520,14 @@ try {
                 showAlert('ไฟล์ภาพมีขนาดใหญ่เกินไป (สูงสุด 2MB)', 'error');
                 return false;
             }
-            
+
             // Check file type
             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
                 showAlert('รูปแบบไฟล์ไม่ถูกต้อง (รองรับเฉพาะ JPG, JPEG, PNG, WebP)', 'error');
                 return false;
             }
-            
+
             return true;
         }
 
@@ -524,7 +540,7 @@ try {
          */
         function updateCurrentImage(imageName) {
             const $container = $('#currentImageContainer');
-            
+
             if (imageName) {
                 // Has image - show image with remove option
                 $container.html(`
@@ -553,7 +569,7 @@ try {
          */
         function showLoading(show) {
             const $updateBtn = $('#updateBtn');
-            
+
             if (show) {
                 $('#loadingOverlay').show();
                 $updateBtn.prop('disabled', true).text('กำลังอัปเดต...');
@@ -571,7 +587,7 @@ try {
          */
         function showAlert(message, type) {
             hideAlerts();
-            
+
             if (type === 'success') {
                 $('#successMessage').text(message);
                 $('#alertSuccess').show();
@@ -579,7 +595,7 @@ try {
                 $('#errorMessage').text(message);
                 $('#alertError').show();
             }
-            
+
             // Auto hide after 5 seconds
             setTimeout(hideAlerts, 5000);
         }
@@ -600,23 +616,23 @@ try {
         function previewImage(input) {
             const $previewContainer = $('#imagePreview');
             $previewContainer.empty();
-            
+
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
+
                 // Validate file before preview
                 if (!validateImageFile(file)) {
                     $(input).val('');
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const $img = $('<img>')
                         .attr('src', e.target.result)
                         .addClass('preview-image')
                         .attr('alt', 'ตัวอย่างภาพใหม่');
-                    
+
                     const $label = $('<div>')
                         .text('ตัวอย่างภาพใหม่')
                         .css({
@@ -624,7 +640,7 @@ try {
                             'color': '#6c757d',
                             'margin-top': '5px'
                         });
-                    
+
                     $previewContainer.append($img).append($label);
                 };
                 reader.readAsDataURL(file);
@@ -644,7 +660,7 @@ try {
                     contentType: 'application/json',
                     data: JSON.stringify({ id: <?php echo $newsId; ?> }),
                     dataType: 'json',
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             alert('ลบข่าวสำเร็จ');
                             window.location.href = '../index.php';
@@ -652,7 +668,7 @@ try {
                             alert('เกิดข้อผิดพลาด: ' + response.message);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error:', error);
                         alert('เกิดข้อผิดพลาดในการลบข่าว');
                     }
@@ -669,7 +685,7 @@ try {
             const maxLength = 255;
             const currentLength = $(input).val().length;
             const $parent = $(input).parent();
-            
+
             // Create or update character counter
             let $counter = $parent.find('.char-counter');
             if ($counter.length === 0) {
@@ -680,9 +696,9 @@ try {
                 });
                 $parent.append($counter);
             }
-            
+
             $counter.text(`${currentLength}/${maxLength} ตัวอักษร`);
-            
+
             // Change color when approaching limit
             if (currentLength > maxLength * 0.9) {
                 $counter.css('color', '#dc3545');
@@ -692,4 +708,5 @@ try {
         }
     </script>
 </body>
+
 </html>

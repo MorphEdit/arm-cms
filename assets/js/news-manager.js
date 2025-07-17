@@ -156,6 +156,7 @@ class NewsManager {
     generateNewsRow(item, index) {
         const imageHtml = this.generateImageHtml(item.image);
         const statusHtml = this.generateStatusHtml(item.status);
+        const accessHtml = this.generateAccessHtml(item.member_access);
         const categoryHtml = this.generateCategoryHtml(item.category);
         const actionsHtml = this.generateActionsHtml(item.id);
 
@@ -205,6 +206,12 @@ class NewsManager {
         const statusClass = status === 'active' ? 'active' : 'inactive';
         const statusText = status === 'active' ? 'เปิดใช้งาน' : 'ปิดใช้งาน';
         return `<span class="status ${statusClass}">${statusText}</span>`;
+    }
+
+    generateAccessHtml(access) {
+        const accessClass = access === 'public' ? 'public' : 'member';
+        const accessText = access === 'public' ? 'สาธารณะ' : 'สมาชิก';
+        return `<span class="access ${accessClass}">${accessText}</span>`;
     }
 
     /**

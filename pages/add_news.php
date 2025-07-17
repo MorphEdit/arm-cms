@@ -30,15 +30,16 @@ if (!testConnection()) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เพิ่มข่าวใหม่ - ARM CMS</title>
     <link rel="stylesheet" href="../assets/css/main.css">
-    
+
     <!-- jQuery CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
+
     <style>
         .form-container {
             max-width: 800px;
@@ -49,18 +50,18 @@ if (!testConnection()) {
             border: 1px solid #dee2e6;
             padding: 30px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #495057;
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -71,12 +72,12 @@ if (!testConnection()) {
             font-size: 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
+
         .form-group textarea {
             resize: vertical;
             min-height: 120px;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -84,46 +85,46 @@ if (!testConnection()) {
             border-color: #007bff;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
         }
-        
+
         .form-actions {
             display: flex;
             gap: 10px;
             margin-top: 30px;
         }
-        
+
         .alert {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
             display: none;
         }
-        
+
         .alert-success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-        
+
         .alert-danger {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        
+
         .required {
             color: #dc3545;
         }
-        
+
         .file-info {
             font-size: 12px;
             color: #6c757d;
             margin-top: 5px;
         }
-        
+
         .preview-container {
             margin-top: 10px;
         }
-        
+
         .preview-image {
             max-width: 200px;
             max-height: 200px;
@@ -135,12 +136,12 @@ if (!testConnection()) {
             margin-bottom: 20px;
             font-size: 14px;
         }
-        
+
         .breadcrumb a {
             color: rgb(224, 6, 42);
             text-decoration: none;
         }
-        
+
         .breadcrumb a:hover {
             text-decoration: underline;
         }
@@ -177,8 +178,13 @@ if (!testConnection()) {
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .success-actions {
@@ -196,6 +202,7 @@ if (!testConnection()) {
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Loading Overlay -->
@@ -233,25 +240,17 @@ if (!testConnection()) {
         <!-- Form -->
         <div class="form-container">
             <form id="addNewsForm" enctype="multipart/form-data">
-                
+
                 <!-- Title -->
                 <div class="form-group">
                     <label for="title">หัวข้อข่าว <span class="required">*</span></label>
-                    <input type="text" 
-                           id="title" 
-                           name="title" 
-                           placeholder="กรอกหัวข้อข่าว"
-                           maxlength="255"
-                           required>
+                    <input type="text" id="title" name="title" placeholder="กรอกหัวข้อข่าว" maxlength="255" required>
                 </div>
 
                 <!-- Content -->
                 <div class="form-group">
                     <label for="content">เนื้อหาข่าว <span class="required">*</span></label>
-                    <textarea id="content" 
-                              name="content" 
-                              placeholder="กรอกเนื้อหาข่าว"
-                              required></textarea>
+                    <textarea id="content" name="content" placeholder="กรอกเนื้อหาข่าว" required></textarea>
                 </div>
 
                 <!-- Category -->
@@ -267,10 +266,7 @@ if (!testConnection()) {
                 <!-- Image Upload -->
                 <div class="form-group">
                     <label for="image">ภาพประกอบ</label>
-                    <input type="file" 
-                           id="image" 
-                           name="image" 
-                           accept="image/jpeg,image/jpg,image/png,image/webp">
+                    <input type="file" id="image" name="image" accept="image/jpeg,image/jpg,image/png,image/webp">
                     <div class="file-info">
                         รองรับไฟล์: JPG, JPEG, PNG, WebP | ขนาดไม่เกิน 2MB
                     </div>
@@ -283,6 +279,15 @@ if (!testConnection()) {
                     <select id="status" name="status" required>
                         <option value="active">เปิดใช้งาน</option>
                         <option value="inactive">ปิดใช้งาน</option>
+                    </select>
+                </div>
+
+                <!-- Member Access -->
+                <div class="form-group">
+                    <label for="member_access">การเข้าถึง <span class="required">*</span></label>
+                    <select id="member_access" name="member_access" required>
+                        <option value="public">สาธารณะ</option>
+                        <option value="member">สมาชิกเท่านั้น</option>
                     </select>
                 </div>
 
@@ -300,40 +305,40 @@ if (!testConnection()) {
          * jQuery Document Ready
          * การทำงาน: เริ่มต้นการทำงานเมื่อ DOM พร้อม
          */
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Hide alerts initially
             hideAlerts();
-            
+
             // Focus on title field
             $('#title').focus();
-            
+
             // Form submission handler
             $('#addNewsForm').on('submit', handleFormSubmit);
-            
+
             // Image change handler
-            $('#image').on('change', function() {
+            $('#image').on('change', function () {
                 previewImage(this);
             });
-            
+
             // Auto-resize textarea
-            $('#content').on('input', function() {
+            $('#content').on('input', function () {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
-            
+
             // Character counter for title
-            $('#title').on('input', function() {
+            $('#title').on('input', function () {
                 updateCharacterCounter(this);
             });
-            
+
             // Keyboard shortcuts
-            $(document).on('keydown', function(e) {
+            $(document).on('keydown', function (e) {
                 // Ctrl + S: Save form
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     $('#addNewsForm').submit();
                 }
-                
+
                 // Escape: Clear form
                 if (e.key === 'Escape') {
                     if (confirm('คุณต้องการล้างข้อมูลในฟอร์มใช่หรือไม่?')) {
@@ -342,7 +347,7 @@ if (!testConnection()) {
                     }
                 }
             });
-            
+
             // Auto-save functionality
             initAutoSave();
         });
@@ -357,16 +362,16 @@ if (!testConnection()) {
          */
         function handleFormSubmit(e) {
             e.preventDefault();
-            
+
             // Client-side validation
             const title = $('#title').val().trim();
             const content = $('#content').val().trim();
-            
+
             if (!title) {
                 showAlert('กรุณากรอกหัวข้อข่าว', 'error');
                 return;
             }
-            
+
             if (!content) {
                 showAlert('กรุณากรอกเนื้อหาข่าว', 'error');
                 return;
@@ -379,18 +384,19 @@ if (!testConnection()) {
                     return;
                 }
             }
-            
+
             // Show loading
             showLoading(true);
             hideAlerts();
-            
+
             // Create FormData object
             const formData = new FormData();
             formData.append('title', title);
             formData.append('content', content);
             formData.append('category', $('#category').val());
             formData.append('status', $('#status').val());
-            
+            formData.append('member_access', $('#member_access').val());
+
             // Add image file if selected
             if (imageFile) {
                 formData.append('image', imageFile);
@@ -404,7 +410,7 @@ if (!testConnection()) {
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showAlert('เพิ่มข่าวเรียบร้อยแล้ว', 'success');
                         resetForm();
@@ -413,11 +419,11 @@ if (!testConnection()) {
                         showAlert(response.message || 'เกิดข้อผิดพลาดในการเพิ่มข่าว', 'error');
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Add news error:', error);
                     showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์', 'error');
                 },
-                complete: function() {
+                complete: function () {
                     showLoading(false);
                 }
             });
@@ -437,14 +443,14 @@ if (!testConnection()) {
                 showAlert('ไฟล์ภาพมีขนาดใหญ่เกินไป (สูงสุด 2MB)', 'error');
                 return false;
             }
-            
+
             // Check file type
             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             if (!allowedTypes.includes(file.type)) {
                 showAlert('รูปแบบไฟล์ไม่ถูกต้อง (รองรับเฉพาะ JPG, JPEG, PNG, WebP)', 'error');
                 return false;
             }
-            
+
             return true;
         }
 
@@ -455,13 +461,13 @@ if (!testConnection()) {
         function resetForm() {
             $('#addNewsForm')[0].reset();
             $('#imagePreview').empty();
-            
+
             // Reset textarea height
             $('#content').css('height', 'auto');
-            
+
             // Remove character counter
             $('.char-counter').remove();
-            
+
             // Focus on title field
             $('#title').focus();
         }
@@ -473,7 +479,7 @@ if (!testConnection()) {
          */
         function showLoading(show) {
             const $submitBtn = $('#submitBtn');
-            
+
             if (show) {
                 $('#loadingOverlay').show();
                 $submitBtn.prop('disabled', true).text('กำลังบันทึก...');
@@ -491,11 +497,11 @@ if (!testConnection()) {
          */
         function showAlert(message, type) {
             hideAlerts();
-            
+
             if (type === 'success') {
                 $('#successMessage').text(message);
                 $('#alertSuccess').show();
-                
+
                 // Scroll to alert
                 $('html, body').animate({
                     scrollTop: $('#alertSuccess').offset().top - 50
@@ -503,13 +509,13 @@ if (!testConnection()) {
             } else {
                 $('#errorMessage').text(message);
                 $('#alertError').show();
-                
+
                 // Scroll to alert
                 $('html, body').animate({
                     scrollTop: $('#alertError').offset().top - 50
                 }, 500);
             }
-            
+
             // Auto hide error alerts after 5 seconds
             if (type === 'error') {
                 setTimeout(hideAlerts, 5000);
@@ -532,23 +538,23 @@ if (!testConnection()) {
         function previewImage(input) {
             const $previewContainer = $('#imagePreview');
             $previewContainer.empty();
-            
+
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
+
                 // Validate file before preview
                 if (!validateImageFile(file)) {
                     $(input).val('');
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const $img = $('<img>')
                         .attr('src', e.target.result)
                         .addClass('preview-image')
                         .attr('alt', 'ตัวอย่างภาพ');
-                    
+
                     const $label = $('<div>')
                         .text('ตัวอย่างภาพ')
                         .css({
@@ -556,7 +562,7 @@ if (!testConnection()) {
                             'color': '#6c757d',
                             'margin-top': '5px'
                         });
-                    
+
                     $previewContainer.append($img).append($label);
                 };
                 reader.readAsDataURL(file);
@@ -572,7 +578,7 @@ if (!testConnection()) {
             const maxLength = 255;
             const currentLength = $(input).val().length;
             const $parent = $(input).parent();
-            
+
             // Create or update character counter
             let $counter = $parent.find('.char-counter');
             if ($counter.length === 0) {
@@ -583,9 +589,9 @@ if (!testConnection()) {
                 });
                 $parent.append($counter);
             }
-            
+
             $counter.text(`${currentLength}/${maxLength} ตัวอักษร`);
-            
+
             // Change color when approaching limit
             if (currentLength > maxLength * 0.9) {
                 $counter.css('color', '#dc3545');
@@ -600,9 +606,9 @@ if (!testConnection()) {
          */
         function initAutoSave() {
             const $inputs = $('#addNewsForm').find('input[type="text"], textarea, select');
-            
+
             // Load saved data
-            $inputs.each(function() {
+            $inputs.each(function () {
                 const $input = $(this);
                 const name = $input.attr('name');
                 if (name && $input.attr('type') !== 'file') {
@@ -612,9 +618,9 @@ if (!testConnection()) {
                     }
                 }
             });
-            
+
             // Save data on input
-            $inputs.on('input change', function() {
+            $inputs.on('input change', function () {
                 const $input = $(this);
                 const name = $input.attr('name');
                 if (name && $input.attr('type') !== 'file') {
@@ -628,7 +634,7 @@ if (!testConnection()) {
          * การทำงาน: ล้างข้อมูลที่บันทึกไว้ใน localStorage
          */
         function clearSavedData() {
-            $('#addNewsForm').find('input[type="text"], textarea, select').each(function() {
+            $('#addNewsForm').find('input[type="text"], textarea, select').each(function () {
                 const name = $(this).attr('name');
                 if (name) {
                     localStorage.removeItem('addNews_' + name);
@@ -637,4 +643,5 @@ if (!testConnection()) {
         }
     </script>
 </body>
+
 </html>
