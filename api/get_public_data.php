@@ -1,9 +1,9 @@
 <?php
 /**
- * Get Public Data API (Updated with Config)
+ * Get Public Data API (Updated with Member Access Filter)
  * ARM CMS - Content Management System
  * 
- * เพิ่มการใช้ config file สำหรับตั้งค่าต่างๆ
+ * เพิ่มการตรวจสอบ login status และ filter ข่าวตาม member_access
  */
 
 // Set content type to JSON
@@ -20,6 +20,9 @@ ob_start();
 try {
     // Include database connection
     require_once '../config/database.php';
+    
+    // **เพิ่มการตรวจสอบ authentication**
+    require_once '../config/auth.php';
     
     // **เพิ่มการโหลด config file**
     $config = include('../config/settings.php');
@@ -51,7 +54,10 @@ try {
     $offset = max(0, $offset);
     $limit = max(1, min($config['pagination']['max_items_per_page'], $limit)); // ใช้ max จาก config
     
-    // ===== SINGLE DATABASE QUERY =====
+    // **ตรวจสอบสถานะการ login**
+    $isLoggedIn = isLoggedIn();
+    
+    // ===== UPDATED DATABASE QUERY WITH MEMBER ACCESS FILTER =====
     $stmt = $db->prepare("
         SELECT 
             id, 
@@ -59,26 +65,29 @@ try {
             content, 
             category, 
             image, 
+            member_access,
             created_at, 
             updated_at
         FROM cms 
         WHERE status = 'active'
+        AND (member_access = 'public' OR :is_logged_in = 1)
         ORDER BY created_at DESC, id DESC
     ");
     
-    $stmt->execute();
+    // ส่งสถานะ login เป็น parameter
+    $stmt->execute([':is_logged_in' => $isLoggedIn ? 1 : 0]);
     $allNews = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // ===== PROCESS DATA IN PHP =====
     
-    // 1. Filter news ตามเงื่อนไข
+    // 1. Filter news ตามเงื่อนไข (category, search)
     $filteredNews = filterNews($allNews, $category, $search);
     
     // 2. Calculate pagination
     $totalItems = count($filteredNews);
     $paginatedNews = array_slice($filteredNews, $offset, $limit);
     
-    // 3. Calculate category statistics (ใช้ config)
+    // 3. Calculate category statistics (ใช้ config) - เฉพาะข่าวที่ user ดูได้
     $categoryStats = calculateCategoryStats($allNews, $config);
     
     // 4. Process news for display (ใช้ config สำหรับ excerpt length)
@@ -92,6 +101,7 @@ try {
             'category' => $item['category'],
             'image' => $item['image'],
             'image_url' => !empty($item['image']) ? '../uploads/' . $item['image'] : null,
+            'member_access' => $item['member_access'], // เพิ่มข้อมูล member_access สำหรับ frontend
             'created_at' => $item['created_at'],
             'updated_at' => $item['updated_at'],
             'formatted_date' => formatThaiDate($item['created_at']),
@@ -108,7 +118,7 @@ try {
     // Clean output buffer
     ob_clean();
     
-    // Return unified response พร้อมข้อมูล config
+    // Return unified response พร้อมข้อมูล config และ login status
     echo json_encode([
         'success' => true,
         'news' => $processedNews,
@@ -133,10 +143,15 @@ try {
             'max_items_per_page' => $config['pagination']['max_items_per_page'],
             'excerpt_length' => $config['news']['excerpt_length']
         ],
+        'user_info' => [
+            'is_logged_in' => $isLoggedIn,
+            'user_role' => $isLoggedIn ? ($_SESSION['role'] ?? 'member') : null
+        ],
         'meta' => [
             'generated_at' => date('Y-m-d H:i:s'),
             'execution_time' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
-            'total_news_in_system' => count($allNews)
+            'total_news_in_system' => count($allNews),
+            'filtered_by_access' => !$isLoggedIn ? 'public_only' : 'all_accessible'
         ]
     ], JSON_UNESCAPED_UNICODE);
     
@@ -203,7 +218,7 @@ function filterNews($allNews, $category, $search) {
 }
 
 /**
- * Calculate category statistics (ใช้ config สำหรับ icons)
+ * Calculate category statistics (ใช้ config สำหรับ icons และ count เฉพาะข่าวที่ user ดูได้)
  */
 function calculateCategoryStats($allNews, $config) {
     $stats = [];
@@ -219,7 +234,7 @@ function calculateCategoryStats($allNews, $config) {
         ];
     }
     
-    // Count and find latest for each category
+    // Count and find latest for each category (เฉพาะข่าวที่ user ดูได้)
     foreach ($allNews as $news) {
         $category = $news['category'];
         

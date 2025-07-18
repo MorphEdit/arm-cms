@@ -542,10 +542,6 @@ function checkSessionTimeout($timeout_seconds = 7200)
     return true;
 }
 
-function checkMember() {
-    
-}
-
 // Auto-check session timeout on every request
 checkSessionTimeout();
 
