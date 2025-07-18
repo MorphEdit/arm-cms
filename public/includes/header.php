@@ -89,32 +89,32 @@ if (!isset($ogImage) || empty($ogImage)) {
     <!-- Structured Data for better SEO -->
     <?php if (strpos($currentPage, 'news.php') !== false && isset($newsData)): ?>
         <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "NewsArticle",
-            "headline": "<?php echo addslashes(htmlspecialchars($newsData['title'])); ?>",
-            "description": "<?php echo addslashes(htmlspecialchars($pageDescription)); ?>",
-            "image": "<?php echo htmlspecialchars($ogImage); ?>",
-            "datePublished": "<?php echo date('c', strtotime($newsData['created_at'])); ?>",
-            "dateModified": "<?php echo date('c', strtotime($newsData['updated_at'])); ?>",
-            "author": {
-                "@type": "Organization",
-                "name": "ARM CMS"
-            },
-            "publisher": {
-                "@type": "Organization",
-                "name": "ARM CMS",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "<?php echo 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/assets/images/logo.png'; ?>"
+            {
+                "@context": "https://schema.org",
+                "@type": "NewsArticle",
+                "headline": "<?php echo addslashes(htmlspecialchars($newsData['title'])); ?>",
+                "description": "<?php echo addslashes(htmlspecialchars($pageDescription)); ?>",
+                "image": "<?php echo htmlspecialchars($ogImage); ?>",
+                "datePublished": "<?php echo date('c', strtotime($newsData['created_at'])); ?>",
+                "dateModified": "<?php echo date('c', strtotime($newsData['updated_at'])); ?>",
+                "author": {
+                    "@type": "Organization",
+                    "name": "ARM CMS"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "ARM CMS",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "<?php echo 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/assets/images/logo.png'; ?>"
+                    }
+                },
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": "<?php echo htmlspecialchars($currentUrl); ?>"
                 }
-            },
-            "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": "<?php echo htmlspecialchars($currentUrl); ?>"
             }
-        }
-        </script>
+            </script>
     <?php endif; ?>
 
     <!-- Additional head content -->
@@ -184,13 +184,24 @@ if (!isset($ogImage) || empty($ogImage)) {
 
                 <!-- Admin Link (if needed) -->
                 <div class="header-actions">
-                    <a href="../index.php" class="admin-link" title="เข้าสู่ระบบจัดการ">
-                        <i class="bi bi-gear"></i> จัดการ
-                    </a>
-
-                    <a href="logout.php" class="admin-link" title="ออกจากระบบ">
-                        <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
-                    </a>
+                    <?php if (isLoggedIn()): ?>
+                        <span class="user-welcome">
+                            สวัสดี, <strong><?php echo htmlspecialchars($_SESSION['full_name']); ?></strong>
+                            <?php if ($_SESSION['role'] === 'member'): ?>
+                                <span class="badge member">สมาชิก</span>
+                            <?php endif; ?>
+                        </span>
+                        <a href="../index.php" class="admin-link" title="เข้าสู่ระบบจัดการ">
+                            <i class="bi bi-gear"></i> จัดการ
+                        </a>
+                        <a href="logout.php" class="admin-link" title="ออกจากระบบ">
+                            <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
+                        </a>
+                    <?php else: ?>
+                        <a href="login.php" class="admin-link" title="เข้าสู่ระบบ">
+                            <i class="bi bi-box-arrow-in-right"></i> เข้าสู่ระบบ
+                        </a>
+                    <?php endif; ?>
                 </div>
 
             </div>
@@ -224,313 +235,314 @@ if (!isset($ogImage) || empty($ogImage)) {
             </div>
         <?php endif; ?>
 
-<script>
-/**
- * Mobile menu functionality (jQuery Version)
- * การทำงาน: จัดการเมนูมือถือ เปิด/ปิด และปรับ aria attributes
- */
+        <script>
+            /**
+             * Mobile menu functionality (jQuery Version)
+             * การทำงาน: จัดการเมนูมือถือ เปิด/ปิด และปรับ aria attributes
+             */
 
-$(document).ready(function() {
-    
-    // Mobile menu toggle
-    $('#mobileMenuToggle').on('click', function() {
-        toggleMobileMenu();
-    });
-    
-    // Mobile overlay click
-    $('#mobileNavOverlay').on('click', function() {
-        closeMobileMenu();
-    });
-    
-    // Close menu when clicking on nav links (mobile)
-    $('.nav-link').on('click', function() {
-        if ($(window).width() <= 768) {
-            closeMobileMenu();
-        }
-    });
-    
-    // Handle window resize
-    $(window).on('resize', function() {
-        if ($(window).width() > 768) {
-            closeMobileMenu();
-        }
-    });
-    
-    // Close menu on escape key
-    $(document).on('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeMobileMenu();
-        }
-    });
-    
-    // Set active category link based on URL
-    setActiveCategoryLink();
-    
-    // Add smooth hover effects
-    $('.nav-link').on('mouseenter', function() {
-        $(this).addClass('nav-hover');
-    }).on('mouseleave', function() {
-        $(this).removeClass('nav-hover');
-    });
-    
-    // Add click animations
-    $('.nav-link').on('click', function() {
-        $(this).addClass('nav-clicked');
-        setTimeout(() => {
-            $(this).removeClass('nav-clicked');
-        }, 200);
-    });
-    
-});
+            $(document).ready(function () {
 
-function toggleMobileMenu() {
-    const $nav = $('.main-nav');
-    const $overlay = $('#mobileNavOverlay');
-    const $toggle = $('#mobileMenuToggle');
-    const $body = $('body');
+                // Mobile menu toggle
+                $('#mobileMenuToggle').on('click', function () {
+                    toggleMobileMenu();
+                });
 
-    const isOpen = $nav.hasClass('mobile-open');
+                // Mobile overlay click
+                $('#mobileNavOverlay').on('click', function () {
+                    closeMobileMenu();
+                });
 
-    if (isOpen) {
-        closeMobileMenu();
-    } else {
-        openMobileMenu();
-    }
-}
+                // Close menu when clicking on nav links (mobile)
+                $('.nav-link').on('click', function () {
+                    if ($(window).width() <= 768) {
+                        closeMobileMenu();
+                    }
+                });
 
-function openMobileMenu() {
-    const $nav = $('.main-nav');
-    const $overlay = $('#mobileNavOverlay');
-    const $toggle = $('#mobileMenuToggle');
-    const $body = $('body');
+                // Handle window resize
+                $(window).on('resize', function () {
+                    if ($(window).width() > 768) {
+                        closeMobileMenu();
+                    }
+                });
 
-    $nav.addClass('mobile-open');
-    $overlay.addClass('active');
-    $toggle.attr('aria-expanded', 'true').addClass('active');
-    $body.addClass('mobile-menu-open');
+                // Close menu on escape key
+                $(document).on('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        closeMobileMenu();
+                    }
+                });
 
-    // Focus management
-    const $firstLink = $nav.find('.nav-link').first();
-    if ($firstLink.length) {
-        $firstLink.focus();
-    }
-    
-    // Add animation delay for each nav item
-    $('.nav-item').each(function(index) {
-        $(this).css('animation-delay', (index * 0.1) + 's');
-    });
-}
+                // Set active category link based on URL
+                setActiveCategoryLink();
 
-function closeMobileMenu() {
-    const $nav = $('.main-nav');
-    const $overlay = $('#mobileNavOverlay');
-    const $toggle = $('#mobileMenuToggle');
-    const $body = $('body');
+                // Add smooth hover effects
+                $('.nav-link').on('mouseenter', function () {
+                    $(this).addClass('nav-hover');
+                }).on('mouseleave', function () {
+                    $(this).removeClass('nav-hover');
+                });
 
-    $nav.removeClass('mobile-open');
-    $overlay.removeClass('active');
-    $toggle.attr('aria-expanded', 'false').removeClass('active');
-    $body.removeClass('mobile-menu-open');
-    
-    // Remove animation delays
-    $('.nav-item').css('animation-delay', '');
-}
+                // Add click animations
+                $('.nav-link').on('click', function () {
+                    $(this).addClass('nav-clicked');
+                    setTimeout(() => {
+                        $(this).removeClass('nav-clicked');
+                    }, 200);
+                });
 
-/**
- * Set active category link based on URL parameters
- * การทำงาน: ตั้งค่า active link ตาม URL parameter
- */
-function setActiveCategoryLink() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-    
-    // Remove all active classes from category links
-    $('.category-link').removeClass('active');
-    
-    if (category) {
-        // Add active class to matching category link
-        $(`.category-link[data-category="${category}"]`).addClass('active');
-        
-        // Remove active from home link if we're on a category page
-        $('a[href="index.php"]').removeClass('active');
-    } else if (window.location.pathname.endsWith('index.php')) {
-        // Add active to home link if no category and on index page
-        $('a[href="index.php"]').addClass('active');
-    }
-}
+            });
 
-/**
- * Handle smooth page transitions
- * การทำงาน: เพิ่ม loading state ระหว่างการเปลี่ยนหน้า
- */
-$('.nav-link').on('click', function(e) {
-    const href = $(this).attr('href');
-    
-    // Don't add loading for external links or anchors
-    if (href && !href.startsWith('http') && !href.startsWith('#')) {
-        // Add loading state
-        showPageTransition();
-        
-        // Small delay for better UX
-        setTimeout(() => {
-            window.location.href = href;
-        }, 200);
-        
-        e.preventDefault();
-    }
-});
+            function toggleMobileMenu() {
+                const $nav = $('.main-nav');
+                const $overlay = $('#mobileNavOverlay');
+                const $toggle = $('#mobileMenuToggle');
+                const $body = $('body');
 
-/**
- * Show page transition loading
- * การทำงาน: แสดง loading ระหว่างเปลี่ยนหน้า
- */
-function showPageTransition() {
-    if (typeof showGlobalLoading === 'function') {
-        showGlobalLoading('กำลังโหลดหน้าใหม่...');
-    } else {
-        // Fallback if global loading not available
-        $('body').addClass('page-transitioning');
-    }
-}
+                const isOpen = $nav.hasClass('mobile-open');
 
-/**
- * Add search functionality to header (if search box exists)
- * การทำงาน: เพิ่มฟังก์ชันค้นหาใน header
- */
-if ($('.header-search').length) {
-    $('.header-search input').on('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const searchTerm = $(this).val().trim();
-            if (searchTerm) {
-                window.location.href = `index.php?search=${encodeURIComponent(searchTerm)}`;
+                if (isOpen) {
+                    closeMobileMenu();
+                } else {
+                    openMobileMenu();
+                }
             }
-        }
-    });
-    
-    $('.header-search button').on('click', function() {
-        const searchTerm = $('.header-search input').val().trim();
-        if (searchTerm) {
-            window.location.href = `index.php?search=${encodeURIComponent(searchTerm)}`;
-        }
-    });
-}
 
-/**
- * Add notification banner functionality (if needed)
- * การทำงาน: จัดการ notification banner
- */
-$('.notification-banner .close-btn').on('click', function() {
-    $(this).closest('.notification-banner').slideUp(300);
-    
-    // Store in localStorage to remember dismissal
-    localStorage.setItem('notificationDismissed', 'true');
-});
+            function openMobileMenu() {
+                const $nav = $('.main-nav');
+                const $overlay = $('#mobileNavOverlay');
+                const $toggle = $('#mobileMenuToggle');
+                const $body = $('body');
 
-// Check if notification was previously dismissed
-if (localStorage.getItem('notificationDismissed') === 'true') {
-    $('.notification-banner').hide();
-}
+                $nav.addClass('mobile-open');
+                $overlay.addClass('active');
+                $toggle.attr('aria-expanded', 'true').addClass('active');
+                $body.addClass('mobile-menu-open');
 
-/**
- * Add header scroll effect
- * การทำงาน: เพิ่มเอฟเฟกต์เมื่อเลื่อนหน้า
- */
-$(window).on('scroll', function() {
-    const $header = $('.public-header');
-    if ($(window).scrollTop() > 100) {
-        $header.addClass('scrolled');
-    } else {
-        $header.removeClass('scrolled');
-    }
-});
+                // Focus management
+                const $firstLink = $nav.find('.nav-link').first();
+                if ($firstLink.length) {
+                    $firstLink.focus();
+                }
 
-/**
- * Enhance accessibility
- * การทำงาน: ปรับปรุง accessibility
- */
-$('.nav-link').on('focus', function() {
-    $(this).addClass('focus-visible');
-}).on('blur', function() {
-    $(this).removeClass('focus-visible');
-});
+                // Add animation delay for each nav item
+                $('.nav-item').each(function (index) {
+                    $(this).css('animation-delay', (index * 0.1) + 's');
+                });
+            }
 
-// Skip link functionality
-$('.skip-link').on('click', function(e) {
-    e.preventDefault();
-    $('#main-content').attr('tabindex', '-1').focus();
-});
+            function closeMobileMenu() {
+                const $nav = $('.main-nav');
+                const $overlay = $('#mobileNavOverlay');
+                const $toggle = $('#mobileMenuToggle');
+                const $body = $('body');
 
-</script>
+                $nav.removeClass('mobile-open');
+                $overlay.removeClass('active');
+                $toggle.attr('aria-expanded', 'false').removeClass('active');
+                $body.removeClass('mobile-menu-open');
 
-<style>
-/* Additional header styles for jQuery enhancements */
-.nav-link.nav-hover {
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
-}
+                // Remove animation delays
+                $('.nav-item').css('animation-delay', '');
+            }
 
-.nav-link.nav-clicked {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
-}
+            /**
+             * Set active category link based on URL parameters
+             * การทำงาน: ตั้งค่า active link ตาม URL parameter
+             */
+            function setActiveCategoryLink() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const category = urlParams.get('category');
 
-.mobile-menu-toggle.active .hamburger:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-}
+                // Remove all active classes from category links
+                $('.category-link').removeClass('active');
 
-.mobile-menu-toggle.active .hamburger:nth-child(2) {
-    opacity: 0;
-}
+                if (category) {
+                    // Add active class to matching category link
+                    $(`.category-link[data-category="${category}"]`).addClass('active');
 
-.mobile-menu-toggle.active .hamburger:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -6px);
-}
+                    // Remove active from home link if we're on a category page
+                    $('a[href="index.php"]').removeClass('active');
+                } else if (window.location.pathname.endsWith('index.php')) {
+                    // Add active to home link if no category and on index page
+                    $('a[href="index.php"]').addClass('active');
+                }
+            }
 
-.main-nav.mobile-open .nav-item {
-    animation: slideInRight 0.3s ease forwards;
-}
+            /**
+             * Handle smooth page transitions
+             * การทำงาน: เพิ่ม loading state ระหว่างการเปลี่ยนหน้า
+             */
+            $('.nav-link').on('click', function (e) {
+                const href = $(this).attr('href');
 
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+                // Don't add loading for external links or anchors
+                if (href && !href.startsWith('http') && !href.startsWith('#')) {
+                    // Add loading state
+                    showPageTransition();
 
-.public-header.scrolled {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    backdrop-filter: blur(10px);
-}
+                    // Small delay for better UX
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 200);
 
-.nav-link.focus-visible {
-    outline: 2px solid rgb(224, 6, 42);
-    outline-offset: 2px;
-}
+                    e.preventDefault();
+                }
+            });
 
-.page-transitioning {
-    pointer-events: none;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
+            /**
+             * Show page transition loading
+             * การทำงาน: แสดง loading ระหว่างเปลี่ยนหน้า
+             */
+            function showPageTransition() {
+                if (typeof showGlobalLoading === 'function') {
+                    showGlobalLoading('กำลังโหลดหน้าใหม่...');
+                } else {
+                    // Fallback if global loading not available
+                    $('body').addClass('page-transitioning');
+                }
+            }
 
-.skip-link {
-    position: absolute;
-    top: -40px;
-    left: 6px;
-    background: rgb(224, 6, 42);
-    color: white;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 4px;
-    z-index: 1000;
-    transition: top 0.3s;
-}
+            /**
+             * Add search functionality to header (if search box exists)
+             * การทำงาน: เพิ่มฟังก์ชันค้นหาใน header
+             */
+            if ($('.header-search').length) {
+                $('.header-search input').on('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        const searchTerm = $(this).val().trim();
+                        if (searchTerm) {
+                            window.location.href = `index.php?search=${encodeURIComponent(searchTerm)}`;
+                        }
+                    }
+                });
 
-.skip-link:focus {
-    top: 6px;
-}
-</style>
+                $('.header-search button').on('click', function () {
+                    const searchTerm = $('.header-search input').val().trim();
+                    if (searchTerm) {
+                        window.location.href = `index.php?search=${encodeURIComponent(searchTerm)}`;
+                    }
+                });
+            }
+
+            /**
+             * Add notification banner functionality (if needed)
+             * การทำงาน: จัดการ notification banner
+             */
+            $('.notification-banner .close-btn').on('click', function () {
+                $(this).closest('.notification-banner').slideUp(300);
+
+                // Store in localStorage to remember dismissal
+                localStorage.setItem('notificationDismissed', 'true');
+            });
+
+            // Check if notification was previously dismissed
+            if (localStorage.getItem('notificationDismissed') === 'true') {
+                $('.notification-banner').hide();
+            }
+
+            /**
+             * Add header scroll effect
+             * การทำงาน: เพิ่มเอฟเฟกต์เมื่อเลื่อนหน้า
+             */
+            $(window).on('scroll', function () {
+                const $header = $('.public-header');
+                if ($(window).scrollTop() > 100) {
+                    $header.addClass('scrolled');
+                } else {
+                    $header.removeClass('scrolled');
+                }
+            });
+
+            /**
+             * Enhance accessibility
+             * การทำงาน: ปรับปรุง accessibility
+             */
+            $('.nav-link').on('focus', function () {
+                $(this).addClass('focus-visible');
+            }).on('blur', function () {
+                $(this).removeClass('focus-visible');
+            });
+
+            // Skip link functionality
+            $('.skip-link').on('click', function (e) {
+                e.preventDefault();
+                $('#main-content').attr('tabindex', '-1').focus();
+            });
+
+        </script>
+
+        <style>
+            /* Additional header styles for jQuery enhancements */
+            .nav-link.nav-hover {
+                transform: translateY(-1px);
+                transition: all 0.2s ease;
+            }
+
+            .nav-link.nav-clicked {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(3) {
+                transform: rotate(-45deg) translate(7px, -6px);
+            }
+
+            .main-nav.mobile-open .nav-item {
+                animation: slideInRight 0.3s ease forwards;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(30px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .public-header.scrolled {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+            }
+
+            .nav-link.focus-visible {
+                outline: 2px solid rgb(224, 6, 42);
+                outline-offset: 2px;
+            }
+
+            .page-transitioning {
+                pointer-events: none;
+                opacity: 0.8;
+                transition: opacity 0.3s ease;
+            }
+
+            .skip-link {
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: rgb(224, 6, 42);
+                color: white;
+                padding: 8px 16px;
+                text-decoration: none;
+                border-radius: 4px;
+                z-index: 1000;
+                transition: top 0.3s;
+            }
+
+            .skip-link:focus {
+                top: 6px;
+            }
+        </style>

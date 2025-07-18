@@ -9,6 +9,12 @@
 // Start session
 session_start();
 
+require_once '../config/auth.php';
+
+$isLoggedIn = isLoggedIn();
+$userRole = $isLoggedIn ? $_SESSION['role'] : null;
+$isMember = ($isLoggedIn && $userRole === 'member');
+
 // if (empty($_SESSION["IsLogin"]) && $_SESSION["IsLogin"] == false){
 //     header('Location: 401.php');
 // }
@@ -154,14 +160,14 @@ include 'includes/header.php';
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category');
             const search = urlParams.get('search');
-            
+
             if (category) {
                 $('#categorySelect').val(category);
             }
             if (search) {
                 $('#searchInput').val(search);
             }
-            
+
             // Update page header based on URL parameters
             this.updatePageHeader(category, search);
         }
@@ -200,7 +206,7 @@ include 'includes/header.php';
             });
 
             // Click on news card
-            $(document).on('click', '.news-card', function() {
+            $(document).on('click', '.news-card', function () {
                 const url = $(this).data('url');
                 if (url) {
                     window.location.href = url;
@@ -220,7 +226,7 @@ include 'includes/header.php';
         resetAndLoad() {
             this.currentOffset = 0;
             this.loadNews(true);
-            
+
             // Update URL and header
             const filters = this.getFilters();
             this.updateURL(filters.category, filters.search);
@@ -229,27 +235,27 @@ include 'includes/header.php';
 
         updateURL(category, search) {
             const url = new URL(window.location);
-            
+
             if (category) {
                 url.searchParams.set('category', category);
             } else {
                 url.searchParams.delete('category');
             }
-            
+
             if (search) {
                 url.searchParams.set('search', search);
             } else {
                 url.searchParams.delete('search');
             }
-            
+
             window.history.pushState({}, '', url);
         }
 
         updatePageHeader(category, search) {
             const $headerTitle = $('.page-title');
-            
+
             let newTitle = '<i class="bi bi-layout-text-sidebar-reverse"></i> ข่าวประชาสัมพันธ์';
-            
+
             if (category) {
                 const categoryIcons = {
                     'ทั่วไป': '<i class="bi bi-layout-text-sidebar-reverse"></i>',
@@ -260,9 +266,9 @@ include 'includes/header.php';
             } else if (search) {
                 newTitle = `🔍 ผลการค้นหา: "${this.escapeHtml(search)}"`;
             }
-            
+
             $headerTitle.html(newTitle);
-            
+
             // Update document title
             document.title = `${category ? 'ข่าว' + category : search ? 'ค้นหา: ' + search : 'ข่าวประชาสัมพันธ์'} - ARM CMS`;
         }
@@ -293,7 +299,7 @@ include 'includes/header.php';
                 if (data.success) {
                     // เก็บ category stats
                     this.categoryStats = data.category_stats;
-                    
+
                     if (reset) {
                         this.displayNews(data.news);
                     } else {
@@ -302,7 +308,7 @@ include 'includes/header.php';
 
                     this.updatePagination(data.pagination);
                     this.updateResultsInfo(data.pagination, filters);
-                    
+
                     // ส่ง category stats ไปยัง footer
                     this.updateFooterStats(data.category_stats);
 
@@ -377,10 +383,15 @@ include 'includes/header.php';
         generateNewsCard(item) {
             const imageHtml = item.image_url
                 ? `<img src="${this.escapeHtml(item.image_url)}" alt="${this.escapeHtml(item.title)}" class="card-image" loading="lazy" onerror="$(this).hide(); $(this).next().show();">
-                   <div class="card-no-image" style="display:none;"><i class="bi bi-layout-text-sidebar-reverse"></i></div>`
+           <div class="card-no-image" style="display:none;"><i class="bi bi-layout-text-sidebar-reverse"></i></div>`
                 : `<div class="card-no-image"><i class="bi bi-layout-text-sidebar-reverse"></i></div>`;
 
             const categoryIcon = this.getCategoryIcon(item.category);
+
+            // เพิ่ม member badge
+            const memberBadge = item.member_access === 'member'
+                ? '<div class="member-badge"><i class="bi bi-person-check"></i> สมาชิก</div>'
+                : '';
 
             return `
                 <article class="news-card" data-url="${item.url}">
@@ -389,6 +400,7 @@ include 'includes/header.php';
                         <div class="card-category">
                             ${categoryIcon} ${this.escapeHtml(item.category)}
                         </div>
+                        ${memberBadge}
                     </div>
                     <div class="card-content">
                         <h2 class="card-title">${this.escapeHtml(item.title)}</h2>
@@ -499,12 +511,12 @@ include 'includes/header.php';
     // Initialize with jQuery
     let newsManager;
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         newsManager = new PublicNewsManager();
     });
 
     // Handle browser back/forward
-    $(window).on('popstate', function() {
+    $(window).on('popstate', function () {
         if (newsManager) {
             newsManager.loadFiltersFromURL();
             newsManager.resetAndLoad();
@@ -513,65 +525,71 @@ include 'includes/header.php';
 </script>
 
 <style>
-/* Additional CSS for loading and error states */
-.loading-placeholder, .error-placeholder {
-    text-align: center;
-    padding: 60px 20px;
-    grid-column: 1 / -1;
-}
+    /* Additional CSS for loading and error states */
+    .loading-placeholder,
+    .error-placeholder {
+        text-align: center;
+        padding: 60px 20px;
+        grid-column: 1 / -1;
+    }
 
-.loading-spinner {
-    display: inline-block;
-}
+    .loading-spinner {
+        display: inline-block;
+    }
 
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 20px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid rgb(224, 6, 42);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
+    .spinner {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 20px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid rgb(224, 6, 42);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
 
-.error-content {
-    max-width: 400px;
-    margin: 0 auto;
-}
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
-.error-icon {
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
+    .error-content {
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
-.no-results {
-    text-align: center;
-    padding: 60px 20px;
-}
+    .error-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
 
-.no-results-content {
-    max-width: 400px;
-    margin: 0 auto;
-}
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+    }
 
-.no-results-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-}
+    .no-results-content {
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
-.news-card {
-    cursor: pointer;
-    transition: transform 0.2s;
-}
+    .no-results-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
 
-.news-card:hover {
-    transform: translateY(-2px);
-}
+    .news-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .news-card:hover {
+        transform: translateY(-2px);
+    }
 </style>
 
 <?php
