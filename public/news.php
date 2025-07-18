@@ -11,8 +11,6 @@ session_start();
 
 require_once '../config/auth.php';
 
-requireMember();
-
 // if (empty($_SESSION["IsLogin"]) && $_SESSION["IsLogin"] == false){
 //     header('Location: 401.php');
 // }

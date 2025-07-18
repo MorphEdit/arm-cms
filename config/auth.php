@@ -542,18 +542,8 @@ function checkSessionTimeout($timeout_seconds = 7200)
     return true;
 }
 
-function checkMember()
-{
-    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'member';
-}
-
-function requireMember()
-{
-    requireLogin();
-
-    if (!checkMember()) {
-        header('Location: public/403.php');
-    }
+function checkMember() {
+    
 }
 
 // Auto-check session timeout on every request
