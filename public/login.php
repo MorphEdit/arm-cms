@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result['success']) {
             $success = $result['message'];
 
-            $_SESSION['IsLogin'] = true;
+            // $_SESSION['IsLogin'] = true;
             
             // Redirect after successful login
             $redirectUrl = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : 'index.php';
