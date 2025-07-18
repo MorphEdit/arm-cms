@@ -53,14 +53,8 @@ try {
         throw new Exception('ID ข่าวไม่ถูกต้อง');
     }
 
-    if ($mainNews['member_access'] === 'member') {
-        if (!isLoggedIn() || $_SESSION['role'] !== 'member') {
-            throw new Exception('ข่าวนี้เฉพาะสมาชิกเท่านั้น');
-        }
-    }
-
     // ===== ใช้การตั้งค่าจาก config =====
-    $relatedNewsLimit = $config['news']['related_news_limit']; // ใช้จาก config แทนการ hardcode
+    $relatedNewsLimit = $config['news']['related_news_limit'];
     $excerptLength = $config['news']['excerpt_length'];
     $readingSpeed = $config['news']['reading_speed_wpm'];
 
@@ -73,6 +67,7 @@ try {
             category, 
             image, 
             status,
+            member_access,
             created_at, 
             updated_at
         FROM cms 
@@ -89,6 +84,13 @@ try {
     $mainNews = findMainNews($allNews, $newsId);
     if (!$mainNews) {
         throw new Exception('ไม่พบข่าวที่ต้องการ หรือข่าวถูกปิดการใช้งาน');
+    }
+
+    // 1.1 Check member access
+    if ($mainNews['member_access'] === 'member') {
+        if (!isLoggedIn() || $_SESSION['role'] !== 'member') {
+            throw new Exception('ข่าวนี้เฉพาะสมาชิกเท่านั้น');
+        }
     }
 
     // 2. Find related news (ใช้ config limit)

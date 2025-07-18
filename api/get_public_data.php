@@ -47,16 +47,15 @@ try {
     $offset = isset($data['offset']) ? (int) $data['offset'] : 0;
     $limit = isset($data['limit']) ? (int) $data['limit'] : $config['pagination']['items_per_page']; // ใช้จาก config
 
+    // Validate and limit parameters (ใช้ config)
+    $offset = max(0, $offset);
+    $limit = max(1, min($config['pagination']['max_items_per_page'], $limit)); // ใช้ max จาก config
 
     $memberAccessCondition = '';
     if (!isLoggedIn() || $_SESSION['role'] !== 'member') {
         // ถ้าไม่ใช่ member ให้แสดงเฉพาะข่าว public
         $memberAccessCondition = " AND member_access = 'public'";
     }
-
-    // Validate and limit parameters (ใช้ config)
-    $offset = max(0, $offset);
-    $limit = max(1, min($config['pagination']['max_items_per_page'], $limit)); // ใช้ max จาก config
 
     // ===== SINGLE DATABASE QUERY =====
     $stmt = $db->prepare("
@@ -66,6 +65,7 @@ try {
         content, 
         category, 
         image, 
+        member_access,
         created_at, 
         updated_at
         FROM cms 
