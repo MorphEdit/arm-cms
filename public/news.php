@@ -11,9 +11,6 @@ session_start();
 
 require_once '../config/auth.php';
 
-$isLoggedIn = isLoggedIn();
-$userRole = $isLoggedIn ? $_SESSION['role'] : null;
-
 // if (empty($_SESSION["IsLogin"]) && $_SESSION["IsLogin"] == false){
 //     header('Location: 401.php');
 // }
