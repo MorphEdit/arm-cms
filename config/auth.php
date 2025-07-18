@@ -24,20 +24,21 @@ require_once __DIR__ . '/database.php';
  * 
  * @return bool
  */
-function isLoggedIn() {
+function isLoggedIn()
+{
     if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         return false;
     }
-    
+
     try {
         $db = getDatabase();
         $stmt = $db->prepare("SELECT status FROM users WHERE id = ? LIMIT 1");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         // Check if user exists and is active
         return $user && $user['status'] === 'active';
-        
+
     } catch (Exception $e) {
         error_log('Auth check error: ' . $e->getMessage());
         return false;
@@ -53,11 +54,12 @@ function isLoggedIn() {
  * - เก็บ URL ปัจจุบันใน session เพื่อ redirect กลับหลัง login สำเร็จ
  * - ส่ง HTTP 401 status code แล้วหยุดการทำงาน
  */
-function requireLogin() {
+function requireLogin()
+{
     if (!isLoggedIn()) {
         // Store current URL for redirect after login
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-        
+
         // Redirect to login page
         header('Location: public/401.php');
         exit();
@@ -99,7 +101,7 @@ function requireLogin() {
 //     if (!isLoggedIn()) {
 //         return null;
 //     }
-    
+
 //     try {
 //         $db = getDatabase();
 //         $stmt = $db->prepare("
@@ -110,7 +112,7 @@ function requireLogin() {
 //         ");
 //         $stmt->execute([$_SESSION['user_id']]);
 //         return $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
 //     } catch (Exception $e) {
 //         error_log('Get current user error: ' . $e->getMessage());
 //         return null;
@@ -128,43 +130,44 @@ function requireLogin() {
  * @param int $userId
  * @return string|false
  */
-function createRememberToken($userId) {
+function createRememberToken($userId)
+{
     try {
         $db = getDatabase();
-        
+
         // สร้าง secure token
         $token = bin2hex(random_bytes(32));
         $hashedToken = password_hash($token, PASSWORD_DEFAULT);
-        
+
         // กำหนดวันหมดอายุ (30 วัน)
         $expires = date('Y-m-d H:i:s', time() + (30 * 24 * 60 * 60));
-        
+
         // บันทึกลงฐานข้อมูล
         $stmt = $db->prepare("
             UPDATE users 
             SET remember_token = ?, remember_expires = ? 
             WHERE id = ?
         ");
-        
+
         $result = $stmt->execute([$hashedToken, $expires, $userId]);
-        
+
         if ($result) {
             // ตั้ง cookie
             setcookie(
-                'remember_token', 
-                $userId . ':' . $token, 
-                time() + (30 * 24 * 60 * 60), 
-                '/', 
-                '', 
-                isset($_SERVER['HTTPS']), 
+                'remember_token',
+                $userId . ':' . $token,
+                time() + (30 * 24 * 60 * 60),
+                '/',
+                '',
+                isset($_SERVER['HTTPS']),
                 true
             );
-            
+
             return $token;
         }
-        
+
         return false;
-        
+
     } catch (Exception $e) {
         error_log('Create remember token error: ' . $e->getMessage());
         return false;
@@ -181,31 +184,32 @@ function createRememberToken($userId) {
  * 
  * @return bool
  */
-function checkRememberToken() {
+function checkRememberToken()
+{
     if (!isset($_COOKIE['remember_token'])) {
         return false;
     }
-    
+
     try {
         $cookie = $_COOKIE['remember_token'];
         $parts = explode(':', $cookie, 2);
-        
+
         if (count($parts) !== 2) {
             // Invalid cookie format
             clearRememberToken();
             return false;
         }
-        
+
         list($userId, $token) = $parts;
-        $userId = (int)$userId;
-        
+        $userId = (int) $userId;
+
         if ($userId <= 0) {
             clearRememberToken();
             return false;
         }
-        
+
         $db = getDatabase();
-        
+
         // ดึงข้อมูล user และ token
         $stmt = $db->prepare("
             SELECT id, username, full_name, role, status, remember_token, remember_expires
@@ -215,24 +219,24 @@ function checkRememberToken() {
         ");
         $stmt->execute([$userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$user) {
             clearRememberToken();
             return false;
         }
-        
+
         // ตรวจสอบ token หมดอายุ
         if ($user['remember_expires'] && strtotime($user['remember_expires']) < time()) {
             clearRememberToken();
             return false;
         }
-        
+
         // ตรวจสอบ token
         if (!$user['remember_token'] || !password_verify($token, $user['remember_token'])) {
             clearRememberToken();
             return false;
         }
-        
+
         // Auto login
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
@@ -240,16 +244,16 @@ function checkRememberToken() {
         $_SESSION['role'] = $user['role'];
         $_SESSION['login_time'] = time();
         $_SESSION['auto_login'] = true; // Mark as auto login
-        
+
         // อัปเดต last_login
         $updateStmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
         $updateStmt->execute([$user['id']]);
-        
+
         // สร้าง token ใหม่เพื่อความปลอดภัย
         createRememberToken($user['id']);
-        
+
         return true;
-        
+
     } catch (Exception $e) {
         error_log('Check remember token error: ' . $e->getMessage());
         clearRememberToken();
@@ -264,18 +268,19 @@ function checkRememberToken() {
  * - ลบ token จากฐานข้อมูล
  * - ลบ cookie จาก browser
  */
-function clearRememberToken() {
+function clearRememberToken()
+{
     // ลบ cookie
     if (isset($_COOKIE['remember_token'])) {
         setcookie('remember_token', '', time() - 3600, '/', '', false, true);
-        
+
         // ลบจากฐานข้อมูลถ้าเป็นไปได้
         try {
             $cookie = $_COOKIE['remember_token'];
             $parts = explode(':', $cookie, 2);
-            
+
             if (count($parts) === 2) {
-                $userId = (int)$parts[0];
+                $userId = (int) $parts[0];
                 if ($userId > 0) {
                     $db = getDatabase();
                     $stmt = $db->prepare("
@@ -307,10 +312,11 @@ function clearRememberToken() {
  * @param bool $remember
  * @return array
  */
-function login($username, $password, $remember = false) {
+function login($username, $password, $remember = false)
+{
     try {
         $db = getDatabase();
-        
+
         // Get user by username
         $stmt = $db->prepare("
             SELECT id, username, password, full_name, email, role, status 
@@ -320,7 +326,7 @@ function login($username, $password, $remember = false) {
         ");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         // Check if user exists
         if (!$user) {
             return [
@@ -328,7 +334,7 @@ function login($username, $password, $remember = false) {
                 'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
             ];
         }
-        
+
         // Check if user is active
         if ($user['status'] !== 'active') {
             return [
@@ -336,7 +342,7 @@ function login($username, $password, $remember = false) {
                 'message' => 'บัญชีของคุณถูกปิดการใช้งาน'
             ];
         }
-        
+
         // Verify password
         if (!password_verify($password, $user['password'])) {
             return [
@@ -344,23 +350,23 @@ function login($username, $password, $remember = false) {
                 'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
             ];
         }
-        
+
         // Create session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['login_time'] = time();
-        
+
         // Update last login
         $updateStmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
         $updateStmt->execute([$user['id']]);
-        
+
         // สร้าง remember token ถ้าขอ
         if ($remember) {
             createRememberToken($user['id']);
         }
-        
+
         return [
             'success' => true,
             'message' => 'เข้าสู่ระบบสำเร็จ',
@@ -371,7 +377,7 @@ function login($username, $password, $remember = false) {
                 'role' => $user['role']
             ]
         ];
-        
+
     } catch (Exception $e) {
         error_log('Login error: ' . $e->getMessage());
         return [
@@ -390,18 +396,19 @@ function login($username, $password, $remember = false) {
  * - ล้าง session cookie หากมี
  * - ลบ remember token
  */
-function logout() {
+function logout()
+{
     // ลบ remember token
     clearRememberToken();
-    
+
     // Clear all session data
     $_SESSION = [];
-    
+
     // Destroy session cookie if it exists
     if (isset($_COOKIE[session_name()])) {
         setcookie(session_name(), '', time() - 3600, '/');
     }
-    
+
     // Destroy session
     session_destroy();
 }
@@ -431,7 +438,8 @@ function logout() {
 //     return hasRole('admin');
 // }
 
-function isAdmin() {
+function isAdmin()
+{
     return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }
 
@@ -443,9 +451,10 @@ function isAdmin() {
  * - ตรวจสอบว่าผู้ใช้เป็น admin หรือไม่
  * - redirect ไปหน้า access denied หากไม่ใช่ admin
  */
-function requireAdmin() {
+function requireAdmin()
+{
     requireLogin();
-    
+
     if (!isAdmin()) {
         header('Location: public/403.php');
     }
@@ -490,19 +499,20 @@ function requireAdmin() {
  * 
  * @return string
  */
-function getUserDisplayName() {
+function getUserDisplayName()
+{
     if (!isLoggedIn()) {
         return 'ผู้ใช้';
     }
-    
+
     if (!empty($_SESSION['full_name'])) {
         return $_SESSION['full_name'];
     }
-    
+
     if (!empty($_SESSION['username'])) {
         return $_SESSION['username'];
     }
-    
+
     return 'ผู้ใช้';
 }
 
@@ -516,19 +526,34 @@ function getUserDisplayName() {
  * @param int $timeout_seconds
  * @return bool true if session is valid, false if timed out
  */
-function checkSessionTimeout($timeout_seconds = 7200) { // 2 hours default
+function checkSessionTimeout($timeout_seconds = 7200)
+{ // 2 hours default
     if (!isLoggedIn()) {
         return false;
     }
-    
+
     if (isset($_SESSION['login_time'])) {
         if (time() - $_SESSION['login_time'] > $timeout_seconds) {
             logout();
             return false;
         }
     }
-    
+
     return true;
+}
+
+function checkMember()
+{
+    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'member';
+}
+
+function requireMember()
+{
+    requireLogin();
+
+    if (!checkMember()) {
+        header('Location: public/403.php');
+    }
 }
 
 // Auto-check session timeout on every request
