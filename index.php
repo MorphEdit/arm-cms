@@ -128,8 +128,8 @@ $pageTitle = 'ระบบจัดการข่าวประชาสัม
                 <thead>
                     <tr>
                         <th width="5%">ลำดับ</th>
-                        <th width="10%">ภาพ</th>
-                        <th width="35%">หัวข้อข่าว</th>
+                        <th width="5%">ภาพ</th>
+                        <th width="30%">หัวข้อข่าว</th>
                         <th width="12%">หมวดหมู่</th>
                         <th width="10%">สถานะ</th>
                         <th width="10%">การเข้าถึง</th>

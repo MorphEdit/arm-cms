@@ -58,8 +58,7 @@ try {
             title, 
             content, 
             category, 
-            image,
-            member_access, 
+            image, 
             created_at, 
             updated_at
         FROM cms 

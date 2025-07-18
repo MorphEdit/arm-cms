@@ -102,7 +102,7 @@ class NewsManager {
      * การทำงาน: แสดงข้อความ "กำลังโหลดข้อมูล..." ในตาราง
      */
     showLoading() {
-        $('#newsTable').html('<tr><td colspan="7" class="loading">กำลังโหลดข้อมูล...</td></tr>');
+        $('#newsTable').html('<tr><td colspan="8" class="loading">กำลังโหลดข้อมูล...</td></tr>');
     }
 
     /**
@@ -111,7 +111,7 @@ class NewsManager {
      * @param {string} message - ข้อความ error ที่ต้องการแสดง
      */
     showError(message) {
-        $('#newsTable').html(`<tr><td colspan="7" class="no-data">เกิดข้อผิดพลาด: ${this.escapeHtml(message)}</td></tr>`);
+        $('#newsTable').html(`<tr><td colspan="8" class="no-data">เกิดข้อผิดพลาด: ${this.escapeHtml(message)}</td></tr>`);
     }
 
     /**
@@ -131,7 +131,7 @@ class NewsManager {
         }
 
         if (!news || news.length === 0) {
-            $tbody.html('<tr><td colspan="7" class="no-data">ไม่พบข้อมูลข่าว</td></tr>');
+            $tbody.html('<tr><td colspan="8" class="no-data">ไม่พบข้อมูลข่าว</td></tr>');
             return;
         }
 
@@ -156,7 +156,7 @@ class NewsManager {
     generateNewsRow(item, index) {
         const imageHtml = this.generateImageHtml(item.image);
         const statusHtml = this.generateStatusHtml(item.status);
-        const accessHtml = this.generateAccessHtml(item.member_access);
+        const memberHtml = this.generateMemberHtml(item.member_access);
         const categoryHtml = this.generateCategoryHtml(item.category);
         const actionsHtml = this.generateActionsHtml(item.id);
 
@@ -170,6 +170,7 @@ class NewsManager {
                 </td>
                 <td>${categoryHtml}</td>
                 <td>${statusHtml}</td>
+                <td>${memberHtml}</td>
                 <td>${this.formatDate(item.created_at)}</td>
                 <td>${actionsHtml}</td>
             </tr>
@@ -208,10 +209,10 @@ class NewsManager {
         return `<span class="status ${statusClass}">${statusText}</span>`;
     }
 
-    generateAccessHtml(access) {
-        const accessClass = access === 'public' ? 'public' : 'member';
-        const accessText = access === 'public' ? 'สาธารณะ' : 'สมาชิก';
-        return `<span class="access ${accessClass}">${accessText}</span>`;
+    generateMemberHtml(member) {
+        const memberClass = member === 'public' ? 'public' : 'member';
+        const memberText = member === 'public' ? 'ทั่วไป' : 'สมาชิก';
+        return `<span class="member ${memberClass}">${memberText}</span>`;
     }
 
     /**

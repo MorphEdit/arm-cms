@@ -42,7 +42,7 @@ try {
     $content = isset($_POST['content']) ? trim($_POST['content']) : '';
     $category = isset($_POST['category']) ? trim($_POST['category']) : '';
     $status = isset($_POST['status']) ? trim($_POST['status']) : '';
-    $member_access = isset($_POST['member_access']) ? trim($_POST['member_access']) : 'public';
+    $member = isset($_POST['member']) ? trim($_POST['member']) : '';
 
     // Validate required fields
     // การทำงาน: ตรวจสอบข้อมูลที่จำเป็น
@@ -60,10 +60,6 @@ try {
 
     if (!in_array($status, ['active', 'inactive'])) {
         throw new Exception('สถานะไม่ถูกต้อง');
-    }
-
-    if (!in_array($member_access, ['public', 'member'])) {
-        throw new Exception('การเข้าถึงไม่ถูกต้อง');
     }
 
     // Start transaction
@@ -91,7 +87,7 @@ try {
             ':category' => $category,
             ':image' => $uploadedImage,
             ':status' => $status,
-            ':member_access' => $member_access
+            ':member_access' => $member
         ]);
 
         if (!$result) {
@@ -127,7 +123,6 @@ try {
                 'category' => $newNewsData['category'],
                 'image' => $newNewsData['image'],
                 'status' => $newNewsData['status'],
-                'member_access' => $newNewsData['member_access'],
                 'created_at' => $newNewsData['created_at'],
                 'updated_at' => $newNewsData['updated_at']
             ]

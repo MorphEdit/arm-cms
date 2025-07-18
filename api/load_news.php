@@ -66,7 +66,7 @@ try {
                 content, 
                 category, 
                 image, 
-                status,
+                status, 
                 member_access, 
                 created_at, 
                 updated_at
